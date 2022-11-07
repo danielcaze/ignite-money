@@ -2,7 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowCircleDown, ArrowCircleUp, X } from "phosphor-react";
 import * as S from './styles'
 import * as zod from 'zod'
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const newTransactionFormSchema = zod.object({
@@ -16,8 +16,16 @@ type newTransactionFormInputs = zod.infer<typeof newTransactionFormSchema>
 
 export function NewTransactionModal() {
 
-  const { register, handleSubmit, formState: { isSubmitting } } = useForm<newTransactionFormInputs>({
-    resolver: zodResolver(newTransactionFormSchema)
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+    control
+  } = useForm<newTransactionFormInputs>({
+    resolver: zodResolver(newTransactionFormSchema),
+    defaultValues: {
+      type: "income"
+    }
   })
 
   async function handleCreateNewTransaction(data: newTransactionFormInputs) {
@@ -36,27 +44,36 @@ export function NewTransactionModal() {
             required
             {...register('description')}
           />
+
           <input type="number"
             placeholder="Price"
             required
             {...register('price', { valueAsNumber: true })}
           />
+
           <input type="text"
             placeholder="Category"
             required
             {...register('category')}
           />
 
-          <S.TransactionType>
-            <S.TransactionTypeButton variant="income" value="income">
-              <ArrowCircleUp size={24} />
-              Income
-            </S.TransactionTypeButton>
-            <S.TransactionTypeButton variant="outcome" value="outcome">
-              <ArrowCircleDown size={24} />
-              Outcome
-            </S.TransactionTypeButton>
-          </S.TransactionType>
+          <Controller control={control} name='type' render={({ field }) => {
+            return (
+              <S.TransactionType
+                onValueChange={field.onChange}
+                value={field.value}
+              >
+                <S.TransactionTypeButton variant="income" value="income">
+                  <ArrowCircleUp size={24} />
+                  Income
+                </S.TransactionTypeButton>
+                <S.TransactionTypeButton variant="outcome" value="outcome">
+                  <ArrowCircleDown size={24} />
+                  Outcome
+                </S.TransactionTypeButton>
+              </S.TransactionType>
+            )
+          }} />
 
           <button type="submit" disabled={isSubmitting}>Cadastrar</button>
         </form>

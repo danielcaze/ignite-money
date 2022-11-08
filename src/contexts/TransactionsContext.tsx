@@ -1,32 +1,34 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
-import { api } from "../lib/axios";
+import { createContext, ReactNode, useEffect, useState } from 'react'
+import { api } from '../lib/axios'
 
 interface Transaction {
-  id: number;
-  description: string;
-  type: "outcome" | "income";
-  price: number;
-  category: string;
-  createdAt: string;
+  id: number
+  description: string
+  type: 'outcome' | 'income'
+  price: number
+  category: string
+  createdAt: string
 }
 
-interface TransactionsContext {
+interface CreateTransaction {
+  description: string
+  type: 'outcome' | 'income'
+  price: number
+  category: string
+}
+
+interface TransactionsContextInterface {
   transactions: Transaction[]
   fetchTransactions: (query?: string) => Promise<void>
   createTransaction: (data: CreateTransaction) => Promise<void>
 }
 
-export const TransactionsContext = createContext({} as TransactionsContext)
+export const TransactionsContext = createContext(
+  {} as TransactionsContextInterface,
+)
 
 interface TransactionsProviderProps {
   children: ReactNode
-}
-
-interface CreateTransaction {
-  description: string;
-  type: "outcome" | "income";
-  price: number;
-  category: string;
 }
 
 export function TransactionsProvider({ children }: TransactionsProviderProps) {
@@ -35,7 +37,7 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
   const value = {
     transactions,
     fetchTransactions,
-    createTransaction
+    createTransaction,
   }
 
   useEffect(() => {
@@ -49,9 +51,9 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
       type,
       category,
       price,
-      createdAt: new Date()
+      createdAt: new Date(),
     })
-    setTransactions(prevState => [response.data, ...prevState])
+    setTransactions((prevState) => [response.data, ...prevState])
   }
 
   async function fetchTransactions(query?: string) {
@@ -60,12 +62,14 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
         _sort: 'createdAt',
         _order: 'desc',
         q: query,
-      }
+      },
     })
     setTransactions(response.data)
   }
 
-  return <TransactionsContext.Provider value={value}>
-    {children}
-  </TransactionsContext.Provider>
+  return (
+    <TransactionsContext.Provider value={value}>
+      {children}
+    </TransactionsContext.Provider>
+  )
 }

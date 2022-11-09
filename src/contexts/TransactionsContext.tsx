@@ -35,10 +35,6 @@ interface TransactionsProviderProps {
 export function TransactionsProvider({ children }: TransactionsProviderProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
 
-  useEffect(() => {
-    fetchTransactions()
-  }, [])
-
   const createTransaction = useCallback(async (data: CreateTransaction) => {
     const { description, price, category, type } = data
     const response = await api.post('/transactions', {
@@ -61,6 +57,10 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
     })
     setTransactions(response.data)
   }, [])
+
+  useEffect(() => {
+    fetchTransactions()
+  }, [fetchTransactions])
 
   const value = {
     transactions,
